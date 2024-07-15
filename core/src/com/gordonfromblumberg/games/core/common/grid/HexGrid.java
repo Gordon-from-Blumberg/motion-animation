@@ -1,11 +1,14 @@
 package com.gordonfromblumberg.games.core.common.grid;
 
+import com.badlogic.gdx.utils.Array;
+import com.gordonfromblumberg.games.core.common.graph.Edge;
 import com.gordonfromblumberg.games.core.common.graph.Graph;
+import com.gordonfromblumberg.games.core.common.utils.CollectionUtils;
 
 import java.util.Iterator;
 import java.util.function.IntUnaryOperator;
 
-public class HexGrid implements Graph, Iterable<HexRow> {
+public class HexGrid implements Graph<Hex>, Iterable<HexRow> {
     static final float xIntersection = 0.5f;
     static final int[] dy = {0, 1, 1, 0, -1, -1};
     static final IntUnaryOperator[] dx = {y -> 1, y -> y % 2, y -> y % 2 - 1, y -> -1, y -> y % 2 - 1, y -> y % 2};
@@ -82,6 +85,26 @@ public class HexGrid implements Graph, Iterable<HexRow> {
         }
 
         return hex;
+    }
+
+    public void removeEdges(Hex hex) {
+        for (int i = 0; i < 6; ++i) {
+            if (hex.edges[i] != null) {
+                Hex neib = hex.edges[i].hex;
+                neib.edges[(i + 3) % 6] = null;
+                hex.edges[i] = null;
+            }
+        }
+    }
+
+    @Override
+    public void next(Hex node, Array<Edge<Hex>> out) {
+        CollectionUtils.addNonNull(out, node.edges);
+    }
+
+    @Override
+    public void prev(Hex node, Array<Edge<Hex>> out) {
+        CollectionUtils.addNonNull(out, node.edges);
     }
 
     public float getWorldX(Hex hex) {

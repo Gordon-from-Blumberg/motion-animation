@@ -1,7 +1,5 @@
 package com.gordonfromblumberg.games.core.common.grid;
 
-import com.badlogic.gdx.utils.Array;
-import com.gordonfromblumberg.games.core.common.graph.Edge;
 import com.gordonfromblumberg.games.core.common.graph.Node;
 
 public class Hex implements Node {
@@ -22,10 +20,5 @@ public class Hex implements Node {
 
     public void setObject(Object object) {
         this.object = object;
-    }
-
-    @Override
-    public void getRelated(Array<Edge> out) {
-        out.addAll(edges);
     }
 }
