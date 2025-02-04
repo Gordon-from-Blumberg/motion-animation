@@ -1,2 +1,2 @@
-# game_template
-Template projects for games on LibGDX
+# Motion animation
+Simple animations of motions
