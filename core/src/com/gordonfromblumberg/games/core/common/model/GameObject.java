@@ -143,6 +143,10 @@ public class GameObject implements Disposable, Poolable {
         sprite.setColor(color);
     }
 
+    public void setColor (float r, float g, float b, float a) {
+        sprite.setColor(r, g, b, a);
+    }
+
     public Sprite getSprite() {
         return sprite;
     }

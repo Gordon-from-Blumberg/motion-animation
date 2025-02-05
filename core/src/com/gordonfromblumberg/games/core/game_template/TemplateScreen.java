@@ -69,10 +69,10 @@ public class TemplateScreen extends WorldScreen<TemplateWorld> {
         uiRenderer.resize(width, height);
     }
 
-    protected void createWorldRenderer() {
+    protected WorldRenderer<TemplateWorld> createWorldRenderer() {
         log.info("GameScreen.createWorldRenderer");
 
-        worldRenderer = new TemplateRenderer(world, batch);
+        return new TemplateRenderer(world, batch);
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 public class Main extends Game {
+	public static final String TITLE_NAME = "Motion animation";
 	public static final String NAME = "motion_animation";
 	public static String WORK_DIR_PATH;
 	public static FileHandle WORK_DIR;
@@ -44,7 +45,7 @@ public class Main extends Game {
 		Assets.setAssetManager(new AssetManager());
 //		setJsonConfigLoader(class, function);
     }
-	
+
 	@Override
 	public void create() {
 		configManager = AbstractFactory.getInstance().configManager();
