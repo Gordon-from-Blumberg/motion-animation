@@ -19,47 +19,55 @@ public class GravityWorld extends World {
 
     @Override
     public void initialize() {
-        SpaceBody sb1 = new SpaceBody();
-        sb1.mass = 1000f;
-        sb1.setSize(40f);
-        sb1.setPosition(700f, 200f);
-        sb1.setColor(0.75f, 0.75f, 0.15f, 1f);
-        sb1.setMovingStrategy(ams);
+        SpaceBody sun = new SpaceBody();
+        sun.mass = 2000f;
+        sun.setSize(50f);
+        sun.setPosition(25f, 25f);
+        sun.setColor(0.75f, 0.75f, 0.15f, 1f);
+        sun.setMovingStrategy(ams);
         
-        SpaceBody sb2 = new SpaceBody();
-        sb2.mass = 20f;
-        sb2.setSize(20f);
-        sb2.velocity.set(20f, 35f);
-        sb2.setPosition(60f, 15f);
-        sb2.setColor(0.5f, 0.3f, 0.25f, 1f);
-        sb2.setMovingStrategy(ams);
+        SpaceBody earth = new SpaceBody();
+        earth.mass = 40f;
+        earth.setSize(25f);
+        earth.velocity.set(0f, 40f);
+        earth.setPosition(1200f, 25f);
+        earth.setColor(0.2f, 0.5f, 0.55f, 1f);
+        earth.setMovingStrategy(ams);
 
-        SpaceBody sb3 = new SpaceBody();
-        sb3.mass = 1f;
-        sb3.setSize(10f);
-        sb3.velocity.set(10f, 60f);
-        sb3.setPosition(50f, 50f);
-        sb3.setColor(0.5f, 0.3f, 0.25f, 1f);
-        sb3.setMovingStrategy(ams);
+        SpaceBody moon = new SpaceBody();
+        moon.mass = 1f;
+        moon.setSize(10f);
+        moon.velocity.set(10f, 60f);
+        moon.setPosition(1130f, 25f);
+        moon.setColor(0.5f, 0.3f, 0.25f, 1f);
+        moon.setMovingStrategy(ams);
 
-        SpaceBody sb4 = new SpaceBody();
-        sb4.mass = 2f;
-        sb4.setSize(10f);
-        sb4.velocity.set(40f, 80f);
-        sb4.setPosition(70f, 40f);
-        sb4.setColor(0.5f, 0.3f, 0.25f, 1f);
-        sb4.setMovingStrategy(ams);
+        SpaceBody merc = new SpaceBody();
+        merc.mass = 10f;
+        merc.setSize(15f);
+        merc.velocity.set(0f, 90f);
+        merc.setPosition(200f, 25f);
+        merc.setColor(0.55f, 0.3f, 0.25f, 1f);
+        merc.setMovingStrategy(ams);
 
-        SpaceBody sb5 = new SpaceBody();
-        sb5.mass = 10f;
-        sb5.setSize(15f);
-        sb5.velocity.set(0f, 50f);
-        sb5.setPosition(900f, 200f);
-        sb5.setColor(0.4f, 0.3f, 0.25f, 1f);
-        sb5.setMovingStrategy(ams);
+        SpaceBody venera = new SpaceBody();
+        venera.mass = 30f;
+        venera.setSize(22f);
+        venera.velocity.set(0f, 60f);
+        venera.setPosition(500f, 25f);
+        venera.setColor(0.5f, 0.35f, 0.10f, 1f);
+        venera.setMovingStrategy(ams);
 
-        bodies.add(sb1, sb2, sb3, sb4);
-        bodies.add(sb5);
+        SpaceBody blackHole = new SpaceBody();
+        blackHole.mass = 1000000f;
+        blackHole.setSize(55f);
+        blackHole.velocity.set(10f, 0f);
+        blackHole.setPosition(0f, 20000f);
+        blackHole.setColor(0.f, 0.f, 0.f, 1f);
+        blackHole.setMovingStrategy(ams);
+
+        bodies.add(sun, earth, moon, merc);
+        bodies.add(venera);
     }
 
     @Override
