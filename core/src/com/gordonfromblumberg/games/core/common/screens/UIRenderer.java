@@ -86,6 +86,10 @@ public class UIRenderer extends AbstractRenderer {
         return actor;
     }
 
+    public Table getRootTable() {
+        return rootTable;
+    }
+
     @Override
     public void dispose() {
         stage.dispose();
