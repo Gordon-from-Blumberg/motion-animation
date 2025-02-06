@@ -61,6 +61,8 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
 
     private Window createCoordsDebugWindow(Skin skin) {
         final Window window = new Window("Coords debug", skin);
+        window.setName("coords_debug");
+        window.setHeight(200f);
         window.add("Camera pos");
         window.add(new UpdatableLabel(skin, () ->
                 floatToString(worldCameraParams.position.x, 2) + ", " + floatToString(worldCameraParams.position.y, 2)));

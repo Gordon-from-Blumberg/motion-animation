@@ -8,13 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.gordonfromblumberg.games.core.common.Main;
 import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
 import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
 import com.gordonfromblumberg.games.core.common.utils.DateTimeFormatter;
 import com.gordonfromblumberg.games.core.common.utils.FileUtils;
+import com.gordonfromblumberg.games.core.common.utils.Paths;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -58,7 +58,7 @@ public class SaveLoadWindow extends DialogExt {
 
         type = load ? Type.LOAD : Type.SAVE;
         ConfigManager config = AbstractFactory.getInstance().configManager();
-        saveDir = Main.WORK_DIR.child(path).file();
+        saveDir = Paths.workDir().child(path).file();
         if (!saveDir.exists()) {
             saveDir.mkdirs();
         }
@@ -99,9 +99,8 @@ public class SaveLoadWindow extends DialogExt {
         getContentTable().addListener(new ClickListener(Input.Buttons.LEFT) {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (event.getTarget() instanceof Label && event.getTarget().getUserObject() instanceof FileRow) {
+                if (event.getTarget() instanceof Label && event.getTarget().getUserObject() instanceof FileRow fileRow) {
                     int clickCount = getTapCount();
-                    FileRow fileRow = (FileRow) event.getTarget().getUserObject();
                     if (clickCount == 1) {
                         fileList.select(fileRow);
                     } else if (clickCount == 2 && fileRow == fileList.selected) {
