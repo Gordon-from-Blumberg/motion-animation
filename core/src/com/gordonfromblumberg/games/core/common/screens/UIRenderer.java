@@ -3,9 +3,11 @@ package com.gordonfromblumberg.games.core.common.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gordonfromblumberg.games.core.common.debug.DebugOptions;
 import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
@@ -23,6 +25,8 @@ public class UIRenderer extends AbstractRenderer {
 
     protected float minWidth;
     protected float minHeight;
+
+    protected final ObjectMap<String, Actor> actorMap = new ObjectMap<>();
 
     public UIRenderer(SpriteBatch batch) {
         super();
@@ -63,6 +67,23 @@ public class UIRenderer extends AbstractRenderer {
 
     public void setAsInputProcessor() {
         Gdx.input.setInputProcessor(stage);
+    }
+
+    public Actor findActor(String name) {
+        Actor actor = actorMap.get(name);
+        if (actor != null) {
+            if (actor.getStage() == stage)
+                return actor;
+
+            actorMap.remove(name);
+        }
+
+        actor = stage.getRoot().findActor(name);
+        if (actor != null) {
+            actorMap.put(name, actor);
+        }
+
+        return actor;
     }
 
     @Override
