@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.gordonfromblumberg.games.core.common.Main;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
+import com.gordonfromblumberg.games.core.common.utils.Assets;
 import com.gordonfromblumberg.games.core.game_template.TemplateScreen;
 
 public class MainMenuScreen extends AbstractScreen {
@@ -34,7 +35,7 @@ public class MainMenuScreen extends AbstractScreen {
     protected void createUiRenderer() {
         super.createUiRenderer();
 
-        final Skin uiSkin = assets.get("ui/uiskin.json", Skin.class);
+        final Skin uiSkin = Assets.get("ui/uiskin.json", Skin.class);
 
         textButton = new TextButton("PLAY", uiSkin);
         textButton.addListener(new ClickListener() {
