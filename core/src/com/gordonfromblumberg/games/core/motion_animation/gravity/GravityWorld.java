@@ -1,30 +1,47 @@
 package com.gordonfromblumberg.games.core.motion_animation.gravity;
 
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.physics.AccelerationMovingStrategy;
+import com.gordonfromblumberg.games.core.common.utils.FileUtils;
+import com.gordonfromblumberg.games.core.common.utils.Paths;
 import com.gordonfromblumberg.games.core.common.world.World;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class GravityWorld extends World {
     private static final float DELAY = 1f / 60;
     private static final float G = AbstractFactory.getInstance().configManager().getFloat("gravity.gConstant");
     private static final Vector2 tempV2 = new Vector2();
+    private static final Color tempClr = new Color();
+    private static final FileHandle saveDir = Paths.workDir().child("saves");
 
     private final AccelerationMovingStrategy ams = new AccelerationMovingStrategy();
 
+    final IntMap<SpaceBody> bodyMap = new IntMap<>();
     final Array<SpaceBody> bodies = new Array<>();
+    private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1 << 14);
 
     private float time;
+    private int nextId = 1;
 
     @Override
     public void initialize() {
+        saveDir.mkdirs();
+        ams.setTurnInVelocityDirection(false);
+
         SpaceBody sun = new SpaceBody();
         sun.mass = 2000f;
         sun.setSize(50f);
         sun.setPosition(25f, 25f);
         sun.setColor(0.75f, 0.75f, 0.15f, 1f);
-        sun.setMovingStrategy(ams);
+        addBody(sun);
         
         SpaceBody earth = new SpaceBody();
         earth.mass = 40f;
@@ -32,7 +49,7 @@ public class GravityWorld extends World {
         earth.velocity.set(0f, 40f);
         earth.setPosition(1200f, 25f);
         earth.setColor(0.2f, 0.5f, 0.55f, 1f);
-        earth.setMovingStrategy(ams);
+        addBody(earth);
 
         SpaceBody moon = new SpaceBody();
         moon.mass = 1f;
@@ -40,7 +57,7 @@ public class GravityWorld extends World {
         moon.velocity.set(10f, 60f);
         moon.setPosition(1130f, 25f);
         moon.setColor(0.5f, 0.3f, 0.25f, 1f);
-        moon.setMovingStrategy(ams);
+        addBody(moon);
 
         SpaceBody merc = new SpaceBody();
         merc.mass = 10f;
@@ -48,7 +65,7 @@ public class GravityWorld extends World {
         merc.velocity.set(0f, 90f);
         merc.setPosition(200f, 25f);
         merc.setColor(0.55f, 0.3f, 0.25f, 1f);
-        merc.setMovingStrategy(ams);
+        addBody(merc);
 
         SpaceBody venera = new SpaceBody();
         venera.mass = 30f;
@@ -56,7 +73,7 @@ public class GravityWorld extends World {
         venera.velocity.set(0f, 60f);
         venera.setPosition(500f, 25f);
         venera.setColor(0.5f, 0.35f, 0.10f, 1f);
-        venera.setMovingStrategy(ams);
+        addBody(venera);
 
         SpaceBody blackHole = new SpaceBody();
         blackHole.mass = 1000000f;
@@ -64,10 +81,8 @@ public class GravityWorld extends World {
         blackHole.velocity.set(10f, 0f);
         blackHole.setPosition(0f, 20000f);
         blackHole.setColor(0.f, 0.f, 0.f, 1f);
-        blackHole.setMovingStrategy(ams);
 
-        bodies.add(sun, earth, moon, merc);
-        bodies.add(venera);
+        saveToContinue();
     }
 
     @Override
@@ -101,5 +116,89 @@ public class GravityWorld extends World {
                 sb.acceleration.setZero();
             }
         }
+    }
+
+    void addBody(SpaceBody sb) {
+        SpaceBody existing = bodyMap.get(sb.getId());
+        if (existing != null) {
+            if (existing == sb) return;
+            throw new IllegalArgumentException("Body with id " + sb.getId() + " already exists!");
+        }
+        if (sb.getId() < 1) sb.setId(nextId++);
+
+        sb.setMovingStrategy(ams);
+        bodies.add(sb);
+        bodyMap.put(sb.getId(), sb);
+    }
+
+    void save(ByteBuffer bb) {
+        int count = bodies.size;
+        bb.putInt(count);
+        for (int i = 0; i < count; ++i) {
+            SpaceBody sb = bodies.get(i);
+            bb.putInt(sb.getId());
+            bb.putFloat(sb.mass);
+            bb.putFloat(sb.getWidth());
+            bb.putFloat(sb.position.x);
+            bb.putFloat(sb.position.y);
+            bb.putFloat(sb.velocity.x);
+            bb.putFloat(sb.velocity.y);
+            bb.putFloat(sb.rotation.x);
+            bb.putFloat(sb.rotation.y);
+            bb.putInt(Color.rgba8888(sb.getColor()));
+        }
+    }
+
+    void load(ByteBuffer bb) {
+        clear();
+
+        int count = bb.getInt();
+        for (int i = 0; i < count; ++i) {
+            SpaceBody sb = SpaceBody.instance();
+            sb.setId(bb.getInt());
+            sb.mass = bb.getFloat();
+            sb.setSize(bb.getFloat());
+            sb.position.x = bb.getFloat();
+            sb.position.y = bb.getFloat();
+            sb.velocity.x = bb.getFloat();
+            sb.velocity.y = bb.getFloat();
+            sb.rotation.x = bb.getFloat();
+            sb.rotation.y = bb.getFloat();
+            Color.rgba8888ToColor(tempClr, bb.getInt());
+            sb.setColor(tempClr);
+            addBody(sb);
+        }
+    }
+
+    void saveToContinue() {
+        byteBuffer.clear();
+        save(byteBuffer);
+        byteBuffer.flip();
+        File file = saveDir.child("continue.sav").file();
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't create 'continue.sav'", e);
+        }
+        FileUtils.saveToFile(byteBuffer, file);
+    }
+
+    void loadContinue() {
+        File file = saveDir.child("continue.sav").file();
+        if (!file.exists()) return;
+
+        byteBuffer.clear();
+        FileUtils.readFile(byteBuffer, file);
+        byteBuffer.flip();
+        load(byteBuffer);
+    }
+
+    void clear() {
+        nextId = 1;
+        bodyMap.clear();
+        for (SpaceBody sb : bodies) {
+            sb.release();
+        }
+        bodies.clear();
     }
 }

@@ -38,4 +38,14 @@ public class PhysicsGameObject extends GameObject {
     public void setMovingStrategy(MovingStrategy movingStrategy) {
         this.movingStrategy = movingStrategy;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+
+        this.velocity.setZero();
+        this.acceleration.setZero();
+        this.rotation.setZero();
+        this.movingStrategy = null;
+    }
 }
