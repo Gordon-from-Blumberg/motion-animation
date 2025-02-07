@@ -183,24 +183,16 @@ public class SaveLoadWindow extends DialogExt {
     private void saveToFile(File file) {
         byteBuffer.clear();
         handler.accept(byteBuffer);
-        try (FileOutputStream os = new FileOutputStream(file)) {
-            byteBuffer.flip();
-            os.getChannel().write(byteBuffer);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write to file " + file.getPath(), e);
-        }
+        byteBuffer.flip();
+        FileUtils.saveToFile(byteBuffer, file);
     }
 
     private void load() {
         if (fileList.selected != null) {
             byteBuffer.clear();
-            try (FileInputStream is = new FileInputStream(fileList.selected.file)) {
-                is.getChannel().read(byteBuffer);
-                byteBuffer.flip();
-                handler.accept(byteBuffer);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not read file " + fileList.selected.file.getPath(), e);
-            }
+            FileUtils.readFile(byteBuffer, fileList.selected.file);
+            byteBuffer.flip();
+            handler.accept(byteBuffer);
         }
     }
 
