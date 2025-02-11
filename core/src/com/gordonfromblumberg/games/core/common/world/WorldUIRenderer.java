@@ -2,6 +2,7 @@ package com.gordonfromblumberg.games.core.common.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
@@ -10,11 +11,13 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.gordonfromblumberg.games.core.common.debug.DebugOptions;
+import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
 import com.gordonfromblumberg.games.core.common.screens.UIRenderer;
 import com.gordonfromblumberg.games.core.common.ui.UpdatableLabel;
 import com.gordonfromblumberg.games.core.common.utils.Assets;
+import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
 
 import java.util.function.Supplier;
 
@@ -22,6 +25,7 @@ import static com.gordonfromblumberg.games.core.common.utils.StringUtils.floatTo
 
 public class WorldUIRenderer<T extends World> extends UIRenderer {
     private static final Logger log = LogManager.create(WorldUIRenderer.class);
+    private static final String SHOW_COORDS_DEBUG_PRF = "debug.coords.show";
 
     private final WorldCameraParams worldCameraParams = new WorldCameraParams();
     private final Supplier<Vector3> viewCoords;
@@ -47,6 +51,9 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
                 public boolean keyUp(InputEvent event, int keycode) {
                     if (keycode == Input.Keys.F9) {
                         window.setVisible(!window.isVisible());
+                        Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
+                        config.putBoolean(SHOW_COORDS_DEBUG_PRF, window.isVisible());
+                        config.flush();
                         return true;
                     }
                     return false;
@@ -86,6 +93,9 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
         window.add("World");
         window.add(new UpdatableLabel(skin,
                 () -> floatToString(world.getMouseX(), 2) + ", " + floatToString(world.getMouseY(), 2)));
+
+        Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
+        if (!config.getBoolean(SHOW_COORDS_DEBUG_PRF, true)) window.setVisible(false);
         return window;
     }
 }
