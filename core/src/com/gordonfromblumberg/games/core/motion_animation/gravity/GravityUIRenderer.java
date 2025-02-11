@@ -24,5 +24,7 @@ public class GravityUIRenderer extends WorldUIRenderer<GravityWorld> {
                 return false;
             }
         });
+
+        addSaveLoadWindow(1 << 14, "saves", "sav");
     }
 }

@@ -8,10 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
-import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
 import com.gordonfromblumberg.games.core.common.utils.DateTimeFormatter;
 import com.gordonfromblumberg.games.core.common.utils.FileUtils;
 import com.gordonfromblumberg.games.core.common.utils.Paths;
@@ -39,7 +37,7 @@ public class SaveLoadWindow extends DialogExt {
     };
 
     private final DateTimeFormatter dateTimeFormatter = new DateTimeFormatter(false);
-    private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1000);
+    private final ByteBuffer byteBuffer;
 
     private final FileList fileList = new FileList();
     private File saveDir;
@@ -53,11 +51,11 @@ public class SaveLoadWindow extends DialogExt {
 
     private Consumer<ByteBuffer> handler;
 
-    public SaveLoadWindow(Stage stage, Skin skin, String path, String extension, boolean load) {
+    public SaveLoadWindow(Stage stage, Skin skin, int bufferSize, String path, String extension, boolean load) {
         super(stage, load ? "Load" : "Save", skin);
 
+        byteBuffer = ByteBuffer.allocateDirect(bufferSize);
         type = load ? Type.LOAD : Type.SAVE;
-        ConfigManager config = AbstractFactory.getInstance().configManager();
         saveDir = Paths.workDir().child(path).file();
         if (!saveDir.exists()) {
             saveDir.mkdirs();

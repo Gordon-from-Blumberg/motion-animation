@@ -82,7 +82,7 @@ public abstract class WorldScreen<T extends World> extends AbstractScreen {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.SPACE) {
-                    world.pause();
+                    world.togglePause();
                     return true;
                 }
                 return false;

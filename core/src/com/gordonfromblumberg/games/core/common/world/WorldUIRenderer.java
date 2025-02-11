@@ -15,6 +15,7 @@ import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
 import com.gordonfromblumberg.games.core.common.screens.UIRenderer;
+import com.gordonfromblumberg.games.core.common.ui.SaveLoadWindow;
 import com.gordonfromblumberg.games.core.common.ui.UpdatableLabel;
 import com.gordonfromblumberg.games.core.common.utils.Assets;
 import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
@@ -64,6 +65,57 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
 
     WorldCameraParams getWorldCameraParams() {
         return worldCameraParams;
+    }
+
+    protected void addSaveLoadWindow(int bufferSize, String defaultSaveDir, String saveExtWoPoint) {
+        final Skin uiSkin = Assets.manager().get("ui/uiskin.json", Skin.class);
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                SaveLoadWindow saveWindow = (SaveLoadWindow) findActor("saveWorld");
+                SaveLoadWindow loadWindow = (SaveLoadWindow) findActor("loadWorld");
+
+                if (keycode == Input.Keys.F5 && (loadWindow == null || !loadWindow.isVisible())) {
+                    world.pause();
+                    if (saveWindow == null) {
+                        saveWindow = createSaveLoadWindow(bufferSize, false, uiSkin, defaultSaveDir, saveExtWoPoint);
+                        saveWindow.setName("saveWorld"); // todo
+                        saveWindow.open(world::save);
+                    } else {
+                        saveWindow.toggle();
+                    }
+                    return true;
+                } else if (keycode == Input.Keys.F6 && (saveWindow == null || !saveWindow.isVisible())) {
+                    world.pause();
+                    if (loadWindow == null) {
+                        loadWindow = createSaveLoadWindow(bufferSize,true, uiSkin, defaultSaveDir, saveExtWoPoint);
+                        loadWindow.setName("loadWorld"); // todo
+                        loadWindow.open(world::load);
+                    } else {
+                        loadWindow.toggle();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    protected SaveLoadWindow createSaveLoadWindow(int bufferSize, boolean load, Skin skin, String defaultSaveDir, String saveExt) {
+        ConfigManager config = AbstractFactory.getInstance().configManager();
+        SaveLoadWindow window = new SaveLoadWindow(
+                stage,
+                skin,
+                bufferSize,
+                config.getString("saves.dir", defaultSaveDir),
+                saveExt,
+                load
+        );
+
+        window.setWidth(config.getFloat("ui.saveload.width"));
+        window.setHeight(config.getFloat("ui.saveload.height"));
+
+        return window;
     }
 
     private Window createCoordsDebugWindow(Skin skin) {

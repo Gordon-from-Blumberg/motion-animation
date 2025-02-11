@@ -131,7 +131,8 @@ public class GravityWorld extends World {
         bodyMap.put(sb.getId(), sb);
     }
 
-    void save(ByteBuffer bb) {
+    @Override
+    protected void save(ByteBuffer bb) {
         int count = bodies.size;
         bb.putInt(count);
         for (int i = 0; i < count; ++i) {
@@ -149,7 +150,8 @@ public class GravityWorld extends World {
         }
     }
 
-    void load(ByteBuffer bb) {
+    @Override
+    protected void load(ByteBuffer bb) {
         clear();
 
         int count = bb.getInt();
@@ -158,8 +160,9 @@ public class GravityWorld extends World {
             sb.setId(bb.getInt());
             sb.mass = bb.getFloat();
             sb.setSize(bb.getFloat());
-            sb.position.x = bb.getFloat();
-            sb.position.y = bb.getFloat();
+            float x = bb.getFloat();
+            float y = bb.getFloat();
+            sb.setPosition(x, y);
             sb.velocity.x = bb.getFloat();
             sb.velocity.y = bb.getFloat();
             sb.rotation.x = bb.getFloat();
