@@ -5,7 +5,9 @@ import com.gordonfromblumberg.games.core.common.event.Event;
 import com.gordonfromblumberg.games.core.common.event.EventHandler;
 import com.gordonfromblumberg.games.core.common.event.EventProcessor;
 
-public class World implements Disposable {
+import java.nio.ByteBuffer;
+
+public abstract class World implements Disposable {
     protected final EventProcessor eventProcessor = EventProcessor.INSTANCE;
 
     protected float mouseX, mouseY; // current world coordinates of mouse
@@ -40,13 +42,20 @@ public class World implements Disposable {
         eventProcessor.push(event);
     }
 
-    public void pause() {
+    public void togglePause() {
         this.paused = !this.paused;
+    }
+
+    public void pause() {
+        this.paused = true;
     }
 
     public boolean isPaused() {
         return paused;
     }
+
+    protected void save(ByteBuffer bb) {}
+    protected void load(ByteBuffer bb) {}
 
     @Override
     public void dispose() {
