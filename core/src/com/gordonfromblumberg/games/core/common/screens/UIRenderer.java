@@ -9,12 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gordonfromblumberg.games.core.common.control.KeyBindingsListener;
 import com.gordonfromblumberg.games.core.common.debug.DebugOptions;
 import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
 import com.gordonfromblumberg.games.core.common.ui.UIUtils;
 import com.gordonfromblumberg.games.core.common.ui.UIViewport;
+import com.gordonfromblumberg.games.core.common.ui.WindowManager;
 import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
 
 public class UIRenderer extends AbstractRenderer {
@@ -22,6 +24,8 @@ public class UIRenderer extends AbstractRenderer {
 
     protected Stage stage;
     protected Table rootTable;
+    protected KeyBindingsListener keyBindings = new KeyBindingsListener();
+    protected WindowManager windowManager;
 
     protected float minWidth;
     protected float minHeight;
@@ -43,6 +47,8 @@ public class UIRenderer extends AbstractRenderer {
         table.setFillParent(true);
         this.rootTable = table;
         this.stage.addActor(table);
+        this.stage.addListener(keyBindings);
+        this.windowManager = new WindowManager(stage);
     }
 
     @Override

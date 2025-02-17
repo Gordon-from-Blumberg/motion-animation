@@ -6,10 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gordonfromblumberg.games.core.common.log.LogManager;
+import com.gordonfromblumberg.games.core.common.log.Logger;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 public class WindowManager {
+    private static final Logger log = LogManager.create(WindowManager.class);
+
     private final Stage stage;
     private float duration = 0.3f;
     private String defaultWindow;
@@ -29,13 +33,18 @@ public class WindowManager {
     }
 
     public void register(String name, Dialog window) {
+        log.debug("Register window of type " + window.getClass().getSimpleName() + " for name " + name);
         windows.put(name, window);
+        if (window instanceof GBDialog gbDialog) {
+            gbDialog.setOnClose(resetCurrent(gbDialog));
+        }
     }
 
     public void open(String name, boolean showPrevOnClose) {
         Dialog window = windows.get(name);
-        if (window == null) return;
+        if (window == null || window == current) return;
 
+        log.debug("Open window " + name + " with showPrevOnClose=" + showPrevOnClose);
         this.showPrevOnClose = showPrevOnClose;
         previous = current;
         if (current != null) {
@@ -45,12 +54,25 @@ public class WindowManager {
         }
     }
 
+    public void toggle(String name) {
+        Dialog window = windows.get(name);
+        if (window == null) return;
+
+        log.debug("Toggle window " + name);
+        if (window == current) {
+            close();
+        } else {
+            open(name, false);
+        }
+    }
+
     /**
      * Closes current window and opens previous if {@link #showPrevOnClose} == true
      */
     public void close() {
         if (current == null) return;
 
+        log.debug("Close current window of type " + current.getClass().getSimpleName() + " with name " + current.getName());
         closeCurrent(showPrevOnClose ? previous : null);
     }
 
@@ -58,6 +80,7 @@ public class WindowManager {
      * Invoke {@link #close()} if current is not null, open default window otherwise
      */
     public void escape() {
+        log.debug("Escape");
         if (current != null) {
             close();
         } else {
@@ -72,13 +95,28 @@ public class WindowManager {
     private void open(Dialog window) {
         current = window;
         if (window != null) {
-            window.show(stage, sequence(alpha(0), fadeIn()));
+            window.getColor().a = 0;
+            window.show(stage, sequence(run(() -> toStageCenter(window)), fadeIn()));
         }
     }
 
+    private Runnable resetCurrent(GBDialog dialog) {
+        return () -> {
+            if (current == dialog) {
+                current = null;
+            }
+        };
+    }
+
     private void closeCurrent(Dialog open) {
+        log.debug("Close current " + current.getName());
         current.hide(sequence(fadeOut(),
                 run(() -> open(open))));
+    }
+
+    private void toStageCenter(Dialog window) {
+        window.setPosition(Math.round((stage.getWidth() - window.getWidth()) / 2),
+                Math.round((stage.getHeight() - window.getHeight()) / 2));
     }
 
     private Action fadeOut() {

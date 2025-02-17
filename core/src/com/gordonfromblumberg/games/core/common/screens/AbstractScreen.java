@@ -33,7 +33,6 @@ public abstract class AbstractScreen implements Screen {
         log.info("AbstractScreen.initialize for " + getClass().getSimpleName());
 
         createUiRenderer();
-        uiRenderer.setAsInputProcessor();
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
