@@ -25,7 +25,7 @@ public class GBDialog extends Dialog {
     public GBDialog(String title, Skin skin) {
         super(title, skin);
 
-        this.closeButton = new TextButton("x", skin);
+        this.closeButton = new TextButton("x", skin, "close");
         this.closeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

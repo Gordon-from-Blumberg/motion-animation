@@ -42,12 +42,12 @@ public abstract class World implements Disposable {
         eventProcessor.push(event);
     }
 
-    public void togglePause() {
-        this.paused = !this.paused;
-    }
-
     public void pause() {
         this.paused = true;
+    }
+
+    public void resetPause() {
+        this.paused = false;
     }
 
     public boolean isPaused() {
