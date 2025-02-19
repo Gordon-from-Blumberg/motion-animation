@@ -22,6 +22,5 @@ public class GravityScreen extends WorldScreen<GravityWorld> {
     protected void createUiRenderer() {
         uiRenderer = new GravityUIRenderer(batch, world, this::getViewCoords3);
         uiRenderer.addListener(new ZoomByScrollListener(worldRenderer.getCamera(), 1.3f, 0.1f, 10f));
-        addPauseListener();
     }
 }

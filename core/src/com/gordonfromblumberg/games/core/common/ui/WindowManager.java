@@ -88,6 +88,14 @@ public class WindowManager {
         }
     }
 
+    public boolean isOpened() {
+        return current != null;
+    }
+
+    public void setDefaultWindow(String defaultWindow) {
+        this.defaultWindow = defaultWindow;
+    }
+
     public void setDuration(float duration) {
         this.duration = duration;
     }

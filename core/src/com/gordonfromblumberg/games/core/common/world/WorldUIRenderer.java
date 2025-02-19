@@ -46,6 +46,8 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
             windowManager.escape();
         });
 
+        addPauseListener();
+
         if (DebugOptions.DEBUG) {
             final AssetManager assets = Assets.manager();
             final Skin uiSkin = assets.get("ui/uiskin.json", Skin.class);
@@ -62,19 +64,21 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
     protected void addSaveLoadWindow(int bufferSize, String defaultSaveDir, String saveExtWoPoint) {
         final Skin uiSkin = Assets.manager().get("ui/uiskin.json", Skin.class);
         SaveLoadWindow saveWindow = createSaveLoadWindow(bufferSize, false, uiSkin, defaultSaveDir, saveExtWoPoint);
-        saveWindow.setName("saveWindow");
-        windowManager.register("saveWindow", saveWindow);
-        keyBindings.bind(Input.Keys.F5, "saveWindow", () -> {
+        String saveWindowName = "save-window";
+        saveWindow.setName(saveWindowName);
+        windowManager.register(saveWindowName, saveWindow);
+        keyBindings.bind(Input.Keys.F5, saveWindowName, () -> {
             world.pause();
-            windowManager.toggle("saveWindow");
+            windowManager.toggle(saveWindowName);
         });
 
         SaveLoadWindow loadWindow = createSaveLoadWindow(bufferSize, true, uiSkin, defaultSaveDir, saveExtWoPoint);
-        loadWindow.setName("loadWindow");
-        windowManager.register("loadWindow", loadWindow);
-        keyBindings.bind(Input.Keys.F6, "loadWindow", () -> {
+        String loadWindowName = "load-window";
+        loadWindow.setName(loadWindowName);
+        windowManager.register(loadWindowName, loadWindow);
+        keyBindings.bind(Input.Keys.F6, loadWindowName, () -> {
             world.pause();
-            windowManager.toggle("loadWindow");
+            windowManager.toggle(loadWindowName);
         });
     }
 
@@ -93,6 +97,13 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
         window.setHeight(config.getFloat("ui.saveload.height"));
 
         return window;
+    }
+
+    protected void addPauseListener() {
+        keyBindings.bind(Input.Keys.SPACE, "pause", () -> {
+            if (!world.isPaused()) world.pause();
+            else if (!windowManager.isOpened()) world.resetPause();
+        });
     }
 
     private void showOrHideCoordsDebug() {
