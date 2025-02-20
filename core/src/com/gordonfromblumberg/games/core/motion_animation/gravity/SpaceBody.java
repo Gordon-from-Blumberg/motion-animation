@@ -25,6 +25,10 @@ public class SpaceBody extends PhysicsGameObject {
         setSize(size, size);
     }
 
+    public float getMass() {
+        return mass;
+    }
+
     @Override
     public void reset() {
         super.reset();
