@@ -1,7 +1,6 @@
 package com.gordonfromblumberg.games.core.motion_animation.gravity;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
@@ -19,7 +18,6 @@ public class GravityWorld extends World {
     private static final float DELAY = 1f / 60;
     private static final float G = AbstractFactory.getInstance().configManager().getFloat("gravity.gConstant");
     private static final Vector2 tempV2 = new Vector2();
-    private static final Color tempClr = new Color();
     private static final FileHandle saveDir = Paths.workDir().child("saves");
 
     private final AccelerationMovingStrategy ams = new AccelerationMovingStrategy();
@@ -27,6 +25,9 @@ public class GravityWorld extends World {
     final IntMap<SpaceBody> bodyMap = new IntMap<>();
     final Array<SpaceBody> bodies = new Array<>();
     private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1 << 14);
+
+    SpaceBody underPointer;
+    boolean underPointerChanged;
 
     private float time;
     private int nextId = 1;
@@ -89,6 +90,16 @@ public class GravityWorld extends World {
     public void update(float delta, float mouseX, float mouseY) {
         super.update(delta, mouseX, mouseY);
 
+        SpaceBody prev = underPointer;
+        underPointer = null;
+        for (SpaceBody sb : bodies) {
+            float r2 = sb.getWidth() / 2;
+            r2 *= r2;
+            if (sb.position.dst2(mouseX, mouseY) <= r2)
+                underPointer = sb;
+        }
+        underPointerChanged = underPointer != prev;
+
         if (!paused) {
             time += delta;
 
@@ -136,17 +147,7 @@ public class GravityWorld extends World {
         int count = bodies.size;
         bb.putInt(count);
         for (int i = 0; i < count; ++i) {
-            SpaceBody sb = bodies.get(i);
-            bb.putInt(sb.getId());
-            bb.putFloat(sb.mass);
-            bb.putFloat(sb.getWidth());
-            bb.putFloat(sb.position.x);
-            bb.putFloat(sb.position.y);
-            bb.putFloat(sb.velocity.x);
-            bb.putFloat(sb.velocity.y);
-            bb.putFloat(sb.rotation.x);
-            bb.putFloat(sb.rotation.y);
-            bb.putInt(Color.rgba8888(sb.getColor()));
+            bodies.get(i).save(bb);
         }
     }
 
@@ -157,18 +158,7 @@ public class GravityWorld extends World {
         int count = bb.getInt();
         for (int i = 0; i < count; ++i) {
             SpaceBody sb = SpaceBody.instance();
-            sb.setId(bb.getInt());
-            sb.mass = bb.getFloat();
-            sb.setSize(bb.getFloat());
-            float x = bb.getFloat();
-            float y = bb.getFloat();
-            sb.setPosition(x, y);
-            sb.velocity.x = bb.getFloat();
-            sb.velocity.y = bb.getFloat();
-            sb.rotation.x = bb.getFloat();
-            sb.rotation.y = bb.getFloat();
-            Color.rgba8888ToColor(tempClr, bb.getInt());
-            sb.setColor(tempClr);
+            sb.load(bb);
             addBody(sb);
         }
     }
