@@ -1,26 +1,27 @@
 package com.gordonfromblumberg.games.core.motion_animation.gravity;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
 import com.gordonfromblumberg.games.core.common.log.Logger;
 import com.gordonfromblumberg.games.core.common.ui.ButtonListWindow;
 import com.gordonfromblumberg.games.core.common.utils.Assets;
+import com.gordonfromblumberg.games.core.common.world.WorldUIInfo;
 import com.gordonfromblumberg.games.core.common.world.WorldUIRenderer;
 import com.gordonfromblumberg.games.core.motion_animation.gravity.ui.SpaceBodyInfo;
-
-import java.util.function.Supplier;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 
 public class GravityUIRenderer extends WorldUIRenderer<GravityWorld> {
     private static final Logger log = LogManager.create(GravityUIRenderer.class);
 
+    private final Vector3 coords = new Vector3();
+    private final Vector3 screenCenter = new Vector3();
     private SpaceBodyInfo bodyInfo;
 
-    public GravityUIRenderer(SpriteBatch batch, GravityWorld world, Supplier<Vector3> viewCoords) {
-        super(batch, world, viewCoords);
+    public GravityUIRenderer(WorldUIInfo<GravityWorld> info) {
+        super(info);
 
         addSaveLoadWindow(1 << 14, "saves", "sav");
 
@@ -47,6 +48,17 @@ public class GravityUIRenderer extends WorldUIRenderer<GravityWorld> {
                             SpaceBodyInfo.showAction()));
                 }
             }
+        }
+
+        if (bodyInfo.getStage() != null) {
+            screenCenter.set(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0).scl(0.5f);
+            screenToViewport(screenCenter);
+            coords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            screenToViewport(coords);
+            float w = bodyInfo.getWidth() / 2;
+            float h = bodyInfo.getHeight() / 2;
+            screenCenter.sub(coords).setLength2(w*w + h*h).add(coords).sub(w, h, 0);
+            bodyInfo.setPosition(screenCenter.x, screenCenter.y);
         }
 
         super.render(dt);

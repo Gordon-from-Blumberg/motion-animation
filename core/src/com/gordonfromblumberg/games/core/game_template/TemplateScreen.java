@@ -73,13 +73,15 @@ public class TemplateScreen extends WorldScreen<TemplateWorld> {
     }
 
     @Override
-    protected void createUiRenderer() {
+    protected WorldUIRenderer<TemplateWorld> createUiRenderer() {
         log.info("WorldScreen.createUiRenderer for " + getClass().getSimpleName());
 
-        uiRenderer = new TemplateUIRenderer(batch, world, this::getViewCoords3);
+        TemplateUIRenderer uiRenderer = new TemplateUIRenderer(getInfo());
 
         final OrthographicCamera camera = worldRenderer.getCamera();
         uiRenderer.addListener(new ZoomByScrollListener(camera, 1.25f));
+
+        return uiRenderer;
     }
 
     @Override

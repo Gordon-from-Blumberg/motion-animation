@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.gordonfromblumberg.games.core.common.ui.ZoomByScrollListener;
 import com.gordonfromblumberg.games.core.common.world.WorldRenderer;
 import com.gordonfromblumberg.games.core.common.world.WorldScreen;
+import com.gordonfromblumberg.games.core.common.world.WorldUIRenderer;
 
 public class GravityScreen extends WorldScreen<GravityWorld> {
     public GravityScreen(SpriteBatch batch) {
@@ -19,8 +20,9 @@ public class GravityScreen extends WorldScreen<GravityWorld> {
     }
 
     @Override
-    protected void createUiRenderer() {
-        uiRenderer = new GravityUIRenderer(batch, world, this::getViewCoords3);
-        uiRenderer.addListener(new ZoomByScrollListener(worldRenderer.getCamera(), 1.3f, 0.1f, 10f));
+    protected WorldUIRenderer<GravityWorld> createUiRenderer() {
+        GravityUIRenderer uiRenderer = new GravityUIRenderer(getInfo());
+        uiRenderer.addListener(new ZoomByScrollListener(worldRenderer.getCamera(), 1.2f, 0.1f, 10f));
+        return uiRenderer;
     }
 }

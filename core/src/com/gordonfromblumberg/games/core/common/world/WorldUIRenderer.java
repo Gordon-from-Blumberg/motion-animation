@@ -4,10 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.gordonfromblumberg.games.core.common.debug.DebugOptions;
 import com.gordonfromblumberg.games.core.common.factory.AbstractFactory;
 import com.gordonfromblumberg.games.core.common.log.LogManager;
@@ -18,8 +19,6 @@ import com.gordonfromblumberg.games.core.common.ui.UpdatableLabel;
 import com.gordonfromblumberg.games.core.common.utils.Assets;
 import com.gordonfromblumberg.games.core.common.utils.ConfigManager;
 
-import java.util.function.Supplier;
-
 import static com.gordonfromblumberg.games.core.common.utils.StringUtils.floatToString;
 
 public class WorldUIRenderer<T extends World> extends UIRenderer {
@@ -27,17 +26,19 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
     private static final String SHOW_COORDS_DEBUG_PRF = "debug.coords.show";
 
     private final WorldCameraParams worldCameraParams = new WorldCameraParams();
-    private final Supplier<Vector3> viewCoords;
+    protected final WorldUIInfo<T> info;
+    private final Vector2 stageCoords = new Vector2();
+    private final Vector3 tempCoords = new Vector3();
 
     protected final T world;
 
     private Window coordsDebugWindow;
 
-    public WorldUIRenderer(SpriteBatch batch, T world, Supplier<Vector3> viewCoords) {
-        super(batch);
+    public WorldUIRenderer(WorldUIInfo<T> info) {
+        super(info.getBatch());
         log.info("WorldUIRenderer constructor for " + getClass().getSimpleName());
-        this.world = world;
-        this.viewCoords = viewCoords;
+        this.world = info.getWorld();
+        this.info = info;
 
         this.keyBindings.bind(Input.Keys.ESCAPE, "Esc", () -> {
             world.pause();
@@ -132,14 +133,24 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
         window.row();
         window.add("Viewport");
         window.add(new UpdatableLabel(skin, () -> {
-            Vector3 coords = viewCoords.get();
-            return floatToString(coords.x, 2) + ", " + floatToString(coords.y, 2);
+            tempCoords.set(world.getMouseX(), world.getMouseY(), 0);
+            info.worldToView(tempCoords);
+            return floatToString(tempCoords.x, 2) + ", " + floatToString(tempCoords.y, 2);
         }));
 
         window.row();
         window.add("World");
         window.add(new UpdatableLabel(skin,
                 () -> floatToString(world.getMouseX(), 2) + ", " + floatToString(world.getMouseY(), 2)));
+
+        window.row();
+        window.add("Stage");
+        window.add(new UpdatableLabel(skin,
+                () -> {
+                    stageCoords.set(Gdx.input.getX(), Gdx.input.getY());
+                    stage.screenToStageCoordinates(stageCoords);
+                    return floatToString(stageCoords.x, 2) + ", " + floatToString(stageCoords.y, 2);
+                }));
 
         Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
         if (!config.getBoolean(SHOW_COORDS_DEBUG_PRF, true)) window.setVisible(false);

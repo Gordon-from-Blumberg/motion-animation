@@ -24,7 +24,6 @@ public class SpaceBodyInfo extends Window {
     private final Label positionLbl;
     private final Label velocityLbl;
     private final Label velocityAngleLbl;
-    private final Vector2 vector2 = new Vector2();
 
     private SpaceBody spaceBody;
 
@@ -90,6 +89,10 @@ public class SpaceBodyInfo extends Window {
         getColor().a = 0f;
         stage.addActor(this);
         addAction(showAction());
+    }
+
+    public SpaceBody getSpaceBody() {
+        return spaceBody;
     }
 
     public void setSpaceBody(SpaceBody spaceBody) {
