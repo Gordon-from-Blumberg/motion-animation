@@ -33,33 +33,25 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
 
     protected final T world;
 
+    private Window coordsDebugWindow;
+
     public WorldUIRenderer(SpriteBatch batch, T world, Supplier<Vector3> viewCoords) {
         super(batch);
         log.info("WorldUIRenderer constructor for " + getClass().getSimpleName());
         this.world = world;
         this.viewCoords = viewCoords;
 
+        this.keyBindings.bind(Input.Keys.ESCAPE, "Esc", () -> {
+            world.pause();
+            windowManager.escape();
+        });
+
         if (DebugOptions.DEBUG) {
             final AssetManager assets = Assets.manager();
             final Skin uiSkin = assets.get("ui/uiskin.json", Skin.class);
-            Window debugWindow = createCoordsDebugWindow(uiSkin);
-            debugWindow.setWidth(250);
-            debugWindow.setY(viewport.getWorldHeight());
-            stage.addActor(debugWindow);
-            stage.addListener(new InputListener() {
-                private final Window window = debugWindow;
-                @Override
-                public boolean keyUp(InputEvent event, int keycode) {
-                    if (keycode == Input.Keys.F9) {
-                        window.setVisible(!window.isVisible());
-                        Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
-                        config.putBoolean(SHOW_COORDS_DEBUG_PRF, window.isVisible());
-                        config.flush();
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            coordsDebugWindow = createCoordsDebugWindow(uiSkin);
+            stage.addActor(coordsDebugWindow);
+            keyBindings.bind(Input.Keys.F9, "showOrHideCoordsDebug", this::showOrHideCoordsDebug);
         }
     }
 
@@ -69,47 +61,32 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
 
     protected void addSaveLoadWindow(int bufferSize, String defaultSaveDir, String saveExtWoPoint) {
         final Skin uiSkin = Assets.manager().get("ui/uiskin.json", Skin.class);
-        stage.addListener(new InputListener() {
-            @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                SaveLoadWindow saveWindow = (SaveLoadWindow) findActor("saveWorld");
-                SaveLoadWindow loadWindow = (SaveLoadWindow) findActor("loadWorld");
+        SaveLoadWindow saveWindow = createSaveLoadWindow(bufferSize, false, uiSkin, defaultSaveDir, saveExtWoPoint);
+        saveWindow.setName("saveWindow");
+        windowManager.register("saveWindow", saveWindow);
+        keyBindings.bind(Input.Keys.F5, "saveWindow", () -> {
+            world.pause();
+            windowManager.toggle("saveWindow");
+        });
 
-                if (keycode == Input.Keys.F5 && (loadWindow == null || !loadWindow.isVisible())) {
-                    world.pause();
-                    if (saveWindow == null) {
-                        saveWindow = createSaveLoadWindow(bufferSize, false, uiSkin, defaultSaveDir, saveExtWoPoint);
-                        saveWindow.setName("saveWorld"); // todo
-                        saveWindow.open(world::save);
-                    } else {
-                        saveWindow.toggle();
-                    }
-                    return true;
-                } else if (keycode == Input.Keys.F6 && (saveWindow == null || !saveWindow.isVisible())) {
-                    world.pause();
-                    if (loadWindow == null) {
-                        loadWindow = createSaveLoadWindow(bufferSize,true, uiSkin, defaultSaveDir, saveExtWoPoint);
-                        loadWindow.setName("loadWorld"); // todo
-                        loadWindow.open(world::load);
-                    } else {
-                        loadWindow.toggle();
-                    }
-                    return true;
-                }
-                return false;
-            }
+        SaveLoadWindow loadWindow = createSaveLoadWindow(bufferSize, true, uiSkin, defaultSaveDir, saveExtWoPoint);
+        loadWindow.setName("loadWindow");
+        windowManager.register("loadWindow", loadWindow);
+        keyBindings.bind(Input.Keys.F6, "loadWindow", () -> {
+            world.pause();
+            windowManager.toggle("loadWindow");
         });
     }
 
     protected SaveLoadWindow createSaveLoadWindow(int bufferSize, boolean load, Skin skin, String defaultSaveDir, String saveExt) {
         ConfigManager config = AbstractFactory.getInstance().configManager();
         SaveLoadWindow window = new SaveLoadWindow(
-                stage,
                 skin,
                 bufferSize,
                 config.getString("saves.dir", defaultSaveDir),
                 saveExt,
-                load
+                load,
+                load ? world::load : world::save
         );
 
         window.setWidth(config.getFloat("ui.saveload.width"));
@@ -118,10 +95,19 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
         return window;
     }
 
+    private void showOrHideCoordsDebug() {
+        coordsDebugWindow.setVisible(!coordsDebugWindow.isVisible());
+        Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
+        config.putBoolean(SHOW_COORDS_DEBUG_PRF, coordsDebugWindow.isVisible());
+        config.flush();
+    }
+
     private Window createCoordsDebugWindow(Skin skin) {
         final Window window = new Window("Coords debug", skin);
         window.setName("coords_debug");
+        window.setWidth(250f);
         window.setHeight(200f);
+        window.setY(viewport.getWorldHeight());
         window.add("Camera pos");
         window.add(new UpdatableLabel(skin, () ->
                 floatToString(worldCameraParams.position.x, 2) + ", " + floatToString(worldCameraParams.position.y, 2)));
