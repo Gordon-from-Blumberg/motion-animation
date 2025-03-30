@@ -119,38 +119,57 @@ public class WorldUIRenderer<T extends World> extends UIRenderer {
         window.setHeight(200f);
         window.setY(viewport.getWorldHeight());
         window.add("Camera pos");
-        window.add(new UpdatableLabel(skin, () ->
-                floatToString(worldCameraParams.position.x, 2) + ", " + floatToString(worldCameraParams.position.y, 2)));
+        window.add(new UpdatableLabel(skin, sb -> {
+                sb.clear();
+                floatToString(worldCameraParams.position.x, 2, sb);
+                sb.append(", ");
+                floatToString(worldCameraParams.position.y, 2, sb);
+        }));
 
         window.row();
         window.add("Zoom");
-        window.add(new UpdatableLabel(skin, () -> floatToString(worldCameraParams.zoom, 3)));
+        window.add(new UpdatableLabel(skin, sb -> {
+            sb.clear();
+            floatToString(worldCameraParams.zoom, 3, sb);
+        }));
 
         window.row();
         window.add("Screen");
-        window.add(new UpdatableLabel(skin, () -> Gdx.input.getX() + ", " + Gdx.input.getY()));
+        window.add(new UpdatableLabel(skin, sb -> {
+            sb.clear();
+            sb.append(Gdx.input.getX()).append(", ").append(Gdx.input.getY());
+        }));
 
         window.row();
         window.add("Viewport");
-        window.add(new UpdatableLabel(skin, () -> {
+        window.add(new UpdatableLabel(skin, sb -> {
+            sb.clear();
             tempCoords.set(world.getMouseX(), world.getMouseY(), 0);
             info.worldToView(tempCoords);
-            return floatToString(tempCoords.x, 2) + ", " + floatToString(tempCoords.y, 2);
+            floatToString(tempCoords.x, 2, sb);
+            sb.append(", ");
+            floatToString(tempCoords.y, 2, sb);
         }));
 
         window.row();
         window.add("World");
-        window.add(new UpdatableLabel(skin,
-                () -> floatToString(world.getMouseX(), 2) + ", " + floatToString(world.getMouseY(), 2)));
+        window.add(new UpdatableLabel(skin, sb -> {
+            sb.clear();
+            floatToString(world.getMouseX(), 2, sb);
+            sb.append(", ");
+            floatToString(world.getMouseY(), 2, sb);
+        }));
 
         window.row();
         window.add("Stage");
-        window.add(new UpdatableLabel(skin,
-                () -> {
-                    stageCoords.set(Gdx.input.getX(), Gdx.input.getY());
-                    stage.screenToStageCoordinates(stageCoords);
-                    return floatToString(stageCoords.x, 2) + ", " + floatToString(stageCoords.y, 2);
-                }));
+        window.add(new UpdatableLabel(skin, sb -> {
+            sb.clear();
+            stageCoords.set(Gdx.input.getX(), Gdx.input.getY());
+            stage.screenToStageCoordinates(stageCoords);
+            floatToString(stageCoords.x, 2, sb);
+            sb.append(", ");
+            floatToString(stageCoords.y, 2, sb);
+        }));
 
         Preferences config = AbstractFactory.getInstance().configManager().getConfigPreferences();
         if (!config.getBoolean(SHOW_COORDS_DEBUG_PRF, true)) window.setVisible(false);
