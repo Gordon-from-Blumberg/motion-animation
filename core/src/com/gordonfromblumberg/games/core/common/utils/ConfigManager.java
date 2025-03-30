@@ -73,6 +73,10 @@ public class ConfigManager {
         return 0;
     }
 
+    public void setInteger(String propertyName, int value) {
+        configProperties.put(propertyName, String.valueOf(value));
+    }
+
     public int getIntegerPref(String propertyName) {
         Preferences prefs = Gdx.app.getPreferences(configPreference);
         int value = prefs.getInteger(propertyName, Integer.MAX_VALUE);

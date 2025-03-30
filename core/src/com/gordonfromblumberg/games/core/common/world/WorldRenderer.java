@@ -37,6 +37,12 @@ public class WorldRenderer<T extends World> extends AbstractRenderer {
         coords.mul(worldToView);
     }
 
+    public void worldToScreen(Vector3 coords) {
+        worldToView(coords);
+        viewportToScreen(coords.x, coords.y, coords);
+        coords.y = viewport.getScreenHeight() - coords.y;
+    }
+
     protected void updateCamera(float cameraSpeed) {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             camera.translate(-cameraSpeed, 0);

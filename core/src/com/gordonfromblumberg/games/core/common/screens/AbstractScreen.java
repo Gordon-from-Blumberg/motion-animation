@@ -32,7 +32,7 @@ public abstract class AbstractScreen implements Screen {
     protected void initialize() {
         log.info("AbstractScreen.initialize for " + getClass().getSimpleName());
 
-        createUiRenderer();
+        uiRenderer = createUiRenderer();
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
@@ -101,10 +101,10 @@ public abstract class AbstractScreen implements Screen {
     protected void update(float delta) {
     }
 
-    protected void createUiRenderer() {
+    protected UIRenderer createUiRenderer() {
         log.info("AbstractScreen.createUiRenderer for " + getClass().getSimpleName());
 
-        uiRenderer = new UIRenderer(batch);
+        return new UIRenderer(batch);
     }
 
     @Override

@@ -63,14 +63,34 @@ public abstract class WorldScreen<T extends World> extends AbstractScreen {
     protected abstract void createWorldRenderer();
 
     @Override
-    protected void createUiRenderer() {
+    protected WorldUIRenderer<T> createUiRenderer() {
         log.info("WorldScreen.createUiRenderer for " + getClass().getSimpleName());
 
-        uiRenderer = new WorldUIRenderer<>(batch, world, this::getViewCoords3);
+        return new WorldUIRenderer<>(getInfo());
     }
 
-    public Vector3 getViewCoords3() {
-        return viewCoords3;
+    protected WorldUIInfo<T> getInfo() {
+        return new WorldUIInfo<>() {
+            @Override
+            public SpriteBatch getBatch() {
+                return batch;
+            }
+
+            @Override
+            public T getWorld() {
+                return world;
+            }
+
+            @Override
+            public void worldToView(Vector3 coords) {
+                worldRenderer.worldToView(coords);
+            }
+
+            @Override
+            public void worldToScreen(Vector3 coords) {
+                worldRenderer.worldToScreen(coords);
+            }
+        };
     }
 
     @Override

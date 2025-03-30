@@ -32,8 +32,8 @@ public class MainMenuScreen extends AbstractScreen {
     }
 
     @Override
-    protected void createUiRenderer() {
-        super.createUiRenderer();
+    protected UIRenderer createUiRenderer() {
+        UIRenderer uiRenderer = super.createUiRenderer();
 
         final Skin uiSkin = Assets.get("ui/uiskin.json", Skin.class);
 
@@ -49,5 +49,6 @@ public class MainMenuScreen extends AbstractScreen {
         });
 
         uiRenderer.rootTable.add(textButton);
+        return uiRenderer;
     }
 }
